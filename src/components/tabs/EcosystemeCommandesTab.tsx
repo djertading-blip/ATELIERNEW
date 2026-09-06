@@ -472,8 +472,8 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
       const longBarre = (ctTechParams.isDirty && ctTechParams.longeur > 0) ? ctTechParams.longeur : (artObj.longeur || 6500);
       const epScie = (ctTechParams.isDirty && ctTechParams.lame > 0) ? ctTechParams.lame : (artObj.lame || 4.5);
       const debord = (ctTechParams.isDirty && ctTechParams.debordement !== undefined) ? ctTechParams.debordement : (artObj.debordement || 0);
-      const rMin = (ctTechParams.isDirty && ctTechParams.refus_min > 0) ? ctTechParams.refus_min : (artObj.refus_min && artObj.refus_min > 0 ? artObj.refus_min : 300);
-      const rMax = (ctTechParams.isDirty && ctTechParams.refus_max > 0) ? ctTechParams.refus_max : (artObj.refus_max && artObj.refus_max > 0 ? artObj.refus_max : 500);
+      const rMin = (ctTechParams.isDirty && ctTechParams.refus_min > 0) ? ctTechParams.refus_min : (artObj.refus_min && artObj.refus_min > 0 ? artObj.refus_min : 500);
+      const rMax = (ctTechParams.isDirty && ctTechParams.refus_max > 0) ? ctTechParams.refus_max : (artObj.refus_max && artObj.refus_max > 0 ? artObj.refus_max : 1100);
 
       const opt = new OptimiseurCoupe1D({
         longueurBarre: longBarre,
@@ -2138,8 +2138,8 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
         const longBarre = (ctTechParams.isDirty && ctTechParams.longeur > 0) ? ctTechParams.longeur : (artObj?.longeur || 6500);
         const epScie = (ctTechParams.isDirty && ctTechParams.lame > 0) ? ctTechParams.lame : (artObj?.lame || 4.5);
         const debord = (ctTechParams.isDirty && ctTechParams.debordement !== undefined) ? ctTechParams.debordement : (artObj?.debordement || 0);
-        const rMin = (ctTechParams.isDirty && ctTechParams.refus_min > 0) ? ctTechParams.refus_min : (artObj?.refus_min && artObj.refus_min > 0 ? artObj.refus_min : 300);
-        const rMax = (ctTechParams.isDirty && ctTechParams.refus_max > 0) ? ctTechParams.refus_max : (artObj?.refus_max && artObj.refus_max > 0 ? artObj.refus_max : 500);
+        const rMin = (ctTechParams.isDirty && ctTechParams.refus_min > 0) ? ctTechParams.refus_min : (artObj?.refus_min && artObj.refus_min > 0 ? artObj.refus_min : 500);
+        const rMax = (ctTechParams.isDirty && ctTechParams.refus_max > 0) ? ctTechParams.refus_max : (artObj?.refus_max && artObj.refus_max > 0 ? artObj.refus_max : 1100);
 
         const opt = new OptimiseurCoupe1D({ longueurBarre: longBarre, epaisseurScie: epScie, refusMin: rMin, refusMax: rMax, mode: optMode, poidsTemps });
         const piecesToCut = lignesGroup.map(c => {

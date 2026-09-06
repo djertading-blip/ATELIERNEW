@@ -151,14 +151,14 @@ export class OptimiseurCoupe1D {
       if (reste < -0.001) return;
 
       if (currentList.length > 0) {
-        let score = currentUtilise * 2.5;
+        let score = currentUtilise * 40;
 
         if (reste <= this.refusMin) {
           // CAS 1 : Déchet résiduel minimal (la barre ou chute est exploitée au max)
-          score += 250000 + (this.refusMin - reste) * 40;
+          score += 300000 + (this.refusMin - reste) * 20;
         } else if (reste >= this.refusMax) {
           // CAS 2 : Chute valorisable qui retourne au stock
-          score += 150000 + reste * 5;
+          score += 150000;
         } else {
           // CAS 3 : Zone de refus interdite ]refusMin, refusMax[ = SACRIFICE
           if (interdireSacrifice) {
@@ -166,7 +166,7 @@ export class OptimiseurCoupe1D {
             return;
           }
           // Forte pénalité pour forcer le backtrack à explorer d'autres branches
-          score -= 1500000 + reste * 100;
+          score -= 20000000 + reste * 500;
         }
 
         // En mode temps, récompenser fortement les cotes identiques
@@ -245,15 +245,16 @@ export class OptimiseurCoupe1D {
       }
 
       if (b.statut === 'SACRIFICE') {
-        // PÉNALITÉ DE REFUS :
-        // 1. Pour une chute de stock : pénalité colossale (10 000 000) pour interdire de massacrer
-        //    une chute du magasin si elle ne peut pas être découpée proprement.
-        // 2. Pour une barre neuve : pénalité élevée (250 000) pour inciter fortement l'optimiseur
-        //    à combiner les pièces courtes afin d'éviter la zone de refus. Si aucune combinaison
-        //    n'est possible (cas de force majeure), le sacrifice est assumé sans doubler le nombre de barres.
+        // PÉNALITÉ DE REFUS INTERDIT ]refusMin, refusMax[ (SACRIFICE) :
+        // Le système doit impérativement ÉVITER de tomber dans cet intervalle interdit sauf cas de force majeure.
+        // Une pénalité colossale (15 000 000 sur barre neuve, 25 000 000 sur chute stock) force l'optimiseur
+        // à privilégier toute solution alternative :
+        // - combinaison de cotes différentes pour atterrir en déchet minimal (<= refusMin)
+        // - ou sous-remplissage propre générant une vraie chute réutilisable (>= refusMax)
+        // Le sacrifice n'est accepté que si AUCUNE autre combinaison physique n'est possible (force majeure).
         const penalite = b.isChuteStock
-          ? 10000000 + b.reste * 100
-          : 250000 + b.reste * 20;
+          ? 25000000 + b.reste * 500
+          : 15000000 + b.reste * 500;
         penaliteZoneRefus += penalite;
       }
 
@@ -330,43 +331,54 @@ export class OptimiseurCoupe1D {
       const reste = capaciteBarre - longueurUtilisee;
       const statut = this.statutPourReste(reste);
 
-      // Si le motif homogène avec le maximum de pièces donne un reste en SACRIFICE :
-      // On regarde si d'autres pièces plus courtes existent dans le pool pour venir combler le vide.
-      // S'il existe des pièces pouvant combler ce vide (longueur <= reste), on laisse une partie des pièces
-      // dans le pool pour que l'algorithme de comblement intelligent mixe les cotes et élimine le sacrifice !
-      const autresPiecesDispos = initialPool.some(p => Math.abs(p.longueur - lg) > 0.1 && p.longueur <= reste + 0.001);
+      // Si le motif homogène avec le maximum de pièces donne un reste en SACRIFICE (zone ]refusMin, refusMax[) :
+      // Le système doit impérativement éviter de tomber sur cette mesure sauf cas de force majeure !
+      // S'il existe d'autres pièces de cotes différentes dans le pool global, on ne DOIT PAS verrouiller
+      // ce motif sacrifié : on laisse les pièces pour le Knapsack et le BFD qui mixeront les cotes
+      // (ex: 2x1780 avec 1x2180 -> reste 222 Déchet).
+      const autresPiecesExistent = initialPool.some(p => Math.abs(p.longueur - lg) > 0.1);
 
-      // Si aucune autre pièce ne peut combler le vide (série 100% homogène, ex: 58 lames de 2525 mm)
-      // OU si le reste est déjà un Déchet (<= refusMin) ou une Chute Stock (>= refusMax) :
-      // On instancie immédiatement les barres avec le maximum de pièces (rendement maximal).
-      // Dans le cas d'une série homogène avec reste ]refusMin, refusMax[, c'est le cas de force majeure :
-      // le statut est noté SACRIFICE, mais on ne consomme PAS le double de barres neuves !
+      if (statut === 'SACRIFICE') {
+        if (autresPiecesExistent) {
+          // Alternative possible avec d'autres pièces du pool : on ne verrouille pas ce sacrifice !
+          continue;
+        }
+
+        // Si la série est 100% homogène, vérifier si sous-remplir d'une pièce donne une vraie Chute Stock (>= refusMax)
+        if (maxPiecesDansBarre > 1) {
+          const uMoins1 = (maxPiecesDansBarre - 1) * lg + Math.max(0, maxPiecesDansBarre - 2) * this.epaisseurScie + this.eboutage;
+          const rMoins1 = capaciteBarre - uMoins1;
+          if (rMoins1 >= this.refusMax) {
+            // Sous-remplir évite le sacrifice et crée une chute magasin valorisable
+            continue;
+          }
+        }
+      }
+
       const piecesParBarreMotif = maxPiecesDansBarre;
 
-      if (!autresPiecesDispos || statut !== 'SACRIFICE') {
-        while (piecesDispos.length >= piecesParBarreMotif) {
-          const piecesDuMotif = piecesDispos.splice(0, piecesParBarreMotif);
-          const utilise = this.calculerEncombrement(piecesDuMotif, true);
-          const r = capaciteBarre - utilise;
+      while (piecesDispos.length >= piecesParBarreMotif) {
+        const piecesDuMotif = piecesDispos.splice(0, piecesParBarreMotif);
+        const utilise = this.calculerEncombrement(piecesDuMotif, true);
+        const r = capaciteBarre - utilise;
 
-          planBarres.push({
-            longueurTotale: capaciteBarre,
-            pieces: piecesDuMotif,
-            utilise,
-            reste: r,
-            statut: this.statutPourReste(r),
-            isChuteStock: false,
-            eboutage: this.eboutage
-          });
+        planBarres.push({
+          longueurTotale: capaciteBarre,
+          pieces: piecesDuMotif,
+          utilise,
+          reste: r,
+          statut: this.statutPourReste(r),
+          isChuteStock: false,
+          eboutage: this.eboutage
+        });
 
-          // Retirer du pool global
-          const idsToRemove = new Set(piecesDuMotif.map(p => p.id));
-          const idxsToRemove: number[] = [];
-          poolRestant.forEach((p, idx) => {
-            if (idsToRemove.has(p.id)) idxsToRemove.push(idx);
-          });
-          idxsToRemove.reverse().forEach(i => poolRestant.splice(i, 1));
-        }
+        // Retirer du pool global
+        const idsToRemove = new Set(piecesDuMotif.map(p => p.id));
+        const idxsToRemove: number[] = [];
+        poolRestant.forEach((p, idx) => {
+          if (idsToRemove.has(p.id)) idxsToRemove.push(idx);
+        });
+        idxsToRemove.reverse().forEach(i => poolRestant.splice(i, 1));
       }
     }
 
@@ -513,7 +525,7 @@ export class OptimiseurCoupe1D {
           } else {
             const reste = this.longueurBarre - currentUtilise;
             if (currentBarrePieces.length > 0) {
-              if (reste <= this.refusMin || reste >= this.refusMax || piecesOfSameLength.length > 4) {
+              if (reste <= this.refusMin || reste >= this.refusMax) {
                 planBarres.push({
                   longueurTotale: this.longueurBarre,
                   pieces: currentBarrePieces,
@@ -541,7 +553,13 @@ export class OptimiseurCoupe1D {
     } else if (modeHeuristique === 'KNAPSACK') {
       let poolKnap = [...pool];
       while (poolKnap.length > 0) {
-        const sac = this.trouverMeilleurSacADos(poolKnap, this.longueurBarre, true);
+        // Essayer d'abord un sac à dos strict interdisant formellement la zone de refus ]refusMin, refusMax[
+        let sac = this.trouverMeilleurSacADos(poolKnap, this.longueurBarre, true, true);
+        if (!sac || sac.pieces.length === 0) {
+          // Si aucune combinaison propre n'est possible (cas de force majeure incompressible),
+          // on autorise le sacrifice en dernier recours pour placer les pièces restantes
+          sac = this.trouverMeilleurSacADos(poolKnap, this.longueurBarre, true, false);
+        }
         if (!sac || sac.pieces.length === 0) {
           const p = poolKnap.shift()!;
           const u = this.calculerEncombrement([p], true);
@@ -992,17 +1010,17 @@ export class OptimiseurCoupe1D {
     const candidates: SolutionPlan[] = [];
 
     // Stratégie A : Recyclage Propre Strict (Interdiction formelle de sacrifier des chutes du stock)
+    candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'KNAPSACK', 'PROPRE_STRICT'));
     candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'PATTERN_MINING', 'PROPRE_STRICT'));
     candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'SAME_LENGTH_FIRST', 'PROPRE_STRICT'));
     candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'BFD', 'PROPRE_STRICT'));
     candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'FFD', 'PROPRE_STRICT'));
-    candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'KNAPSACK', 'PROPRE_STRICT'));
 
     // Stratégie B : 100% Barres Neuves (Chutes préservées intactes en magasin si leur découpage est non-rentable)
     if (poolChutes.length > 0) {
+      candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'KNAPSACK', 'SANS_CHUTES'));
       candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'PATTERN_MINING', 'SANS_CHUTES'));
       candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'BFD', 'SANS_CHUTES'));
-      candidates.push(this.construireSolutionHeuristique(poolValide, poolChutes, 'KNAPSACK', 'SANS_CHUTES'));
     }
 
     // Stratégie C : Explorations aléatoires diversifiées
