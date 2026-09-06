@@ -469,11 +469,11 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
       const mappedSheetName = mapping[artObj.code_art] || null;
       const availableChutes = mappedSheetName ? chutesBarres[mappedSheetName] || [] : [];
 
-      const longBarre = ctTechParams.longeur || artObj.longeur || 6500;
-      const epScie = ctTechParams.lame || artObj.lame || 4.5;
-      const debord = ctTechParams.debordement !== undefined ? ctTechParams.debordement : (artObj.debordement || 0);
-      const rMin = ctTechParams.refus_min ?? artObj.refus_min ?? 300;
-      const rMax = ctTechParams.refus_max ?? artObj.refus_max ?? 1200;
+      const longBarre = (ctTechParams.isDirty && ctTechParams.longeur > 0) ? ctTechParams.longeur : (artObj.longeur || 6500);
+      const epScie = (ctTechParams.isDirty && ctTechParams.lame > 0) ? ctTechParams.lame : (artObj.lame || 4.5);
+      const debord = (ctTechParams.isDirty && ctTechParams.debordement !== undefined) ? ctTechParams.debordement : (artObj.debordement || 0);
+      const rMin = (ctTechParams.isDirty && ctTechParams.refus_min > 0) ? ctTechParams.refus_min : (artObj.refus_min && artObj.refus_min > 0 ? artObj.refus_min : 300);
+      const rMax = (ctTechParams.isDirty && ctTechParams.refus_max > 0) ? ctTechParams.refus_max : (artObj.refus_max && artObj.refus_max > 0 ? artObj.refus_max : 500);
 
       const opt = new OptimiseurCoupe1D({
         longueurBarre: longBarre,
@@ -535,11 +535,11 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
       const mappedSheetName = mapping[sfObj.code_art] || null;
       const availableChutes = mappedSheetName ? chutesBarres[mappedSheetName] || [] : [];
 
-      const longBarreSF = sfTechParams.longeur || sfObj.longeur || 6000;
-      const epScieSF = sfTechParams.lame || sfObj.lame || 4.5;
-      const debordSF = sfTechParams.debordement !== undefined ? sfTechParams.debordement : (sfObj.debordement || 0);
-      const rMinSF = sfTechParams.refus_min ?? sfObj.refus_min ?? 300;
-      const rMaxSF = sfTechParams.refus_max ?? sfObj.refus_max ?? 1200;
+      const longBarreSF = (sfTechParams.isDirty && sfTechParams.longeur > 0) ? sfTechParams.longeur : (sfObj.longeur || 6000);
+      const epScieSF = (sfTechParams.isDirty && sfTechParams.lame > 0) ? sfTechParams.lame : (sfObj.lame || 4.5);
+      const debordSF = (sfTechParams.isDirty && sfTechParams.debordement !== undefined) ? sfTechParams.debordement : (sfObj.debordement || 0);
+      const rMinSF = (sfTechParams.isDirty && sfTechParams.refus_min > 0) ? sfTechParams.refus_min : (sfObj.refus_min && sfObj.refus_min > 0 ? sfObj.refus_min : 300);
+      const rMaxSF = (sfTechParams.isDirty && sfTechParams.refus_max > 0) ? sfTechParams.refus_max : (sfObj.refus_max && sfObj.refus_max > 0 ? sfObj.refus_max : 500);
 
       const refsSFInvolved = Array.from(new Set(lignesGroup.map(c => (c.sfRefCommande || numCommandeSousFace || c.refCommande || numCommandeCaisson || '').trim()).filter(Boolean)));
       const refTitreSF = refsSFInvolved.length > 0 ? refsSFInvolved.join(', ') : (numCommandeSousFace.trim() || refTitre || 'CMD-01');
@@ -2135,11 +2135,11 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
         const artObj = safeArticles.find(a => a.code_art === artCode) || articlesCT.find(a => a.code_art === artCode) || articlesCT[0];
         const mappedSheetName = mapping[artObj?.code_art || ''] || null;
         const availableChutes = mappedSheetName ? chutesBarres[mappedSheetName] || [] : [];
-        const longBarre = ctTechParams.longeur || artObj?.longeur || 6500;
-        const epScie = ctTechParams.lame || artObj?.lame || 4.5;
-        const debord = ctTechParams.debordement !== undefined ? ctTechParams.debordement : (artObj?.debordement || 0);
-        const rMin = ctTechParams.refus_min ?? artObj?.refus_min ?? 300;
-        const rMax = ctTechParams.refus_max ?? artObj?.refus_max ?? 1200;
+        const longBarre = (ctTechParams.isDirty && ctTechParams.longeur > 0) ? ctTechParams.longeur : (artObj?.longeur || 6500);
+        const epScie = (ctTechParams.isDirty && ctTechParams.lame > 0) ? ctTechParams.lame : (artObj?.lame || 4.5);
+        const debord = (ctTechParams.isDirty && ctTechParams.debordement !== undefined) ? ctTechParams.debordement : (artObj?.debordement || 0);
+        const rMin = (ctTechParams.isDirty && ctTechParams.refus_min > 0) ? ctTechParams.refus_min : (artObj?.refus_min && artObj.refus_min > 0 ? artObj.refus_min : 300);
+        const rMax = (ctTechParams.isDirty && ctTechParams.refus_max > 0) ? ctTechParams.refus_max : (artObj?.refus_max && artObj.refus_max > 0 ? artObj.refus_max : 500);
 
         const opt = new OptimiseurCoupe1D({ longueurBarre: longBarre, epaisseurScie: epScie, refusMin: rMin, refusMax: rMax, mode: optMode, poidsTemps });
         const piecesToCut = lignesGroup.map(c => {
@@ -2190,11 +2190,11 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
         const sfObj = safeArticles.find(a => a.code_art === sfCode) || articlesSF.find(a => a.code_art === sfCode) || articlesSF[0];
         const mappedSheetName = mapping[sfObj?.code_art || ''] || null;
         const availableChutes = mappedSheetName ? chutesBarres[mappedSheetName] || [] : [];
-        const longBarreSF = sfTechParams.longeur || sfObj?.longeur || 6000;
-        const epScieSF = sfTechParams.lame || sfObj?.lame || 4.5;
-        const debordSF = sfTechParams.debordement !== undefined ? sfTechParams.debordement : (sfObj?.debordement || 0);
-        const rMinSF = sfTechParams.refus_min ?? sfObj?.refus_min ?? 300;
-        const rMaxSF = sfTechParams.refus_max ?? sfObj?.refus_max ?? 1200;
+        const longBarreSF = (sfTechParams.isDirty && sfTechParams.longeur > 0) ? sfTechParams.longeur : (sfObj?.longeur || 6000);
+        const epScieSF = (sfTechParams.isDirty && sfTechParams.lame > 0) ? sfTechParams.lame : (sfObj?.lame || 4.5);
+        const debordSF = (sfTechParams.isDirty && sfTechParams.debordement !== undefined) ? sfTechParams.debordement : (sfObj?.debordement || 0);
+        const rMinSF = (sfTechParams.isDirty && sfTechParams.refus_min > 0) ? sfTechParams.refus_min : (sfObj?.refus_min && sfObj.refus_min > 0 ? sfObj.refus_min : 300);
+        const rMaxSF = (sfTechParams.isDirty && sfTechParams.refus_max > 0) ? sfTechParams.refus_max : (sfObj?.refus_max && sfObj.refus_max > 0 ? sfObj.refus_max : 500);
 
         const refsSFInvolved = Array.from(new Set(lignesGroup.map(c => (c.sfRefCommande || numCommandeSousFace || c.refCommande || numCommandeCaisson || '').trim()).filter(Boolean)));
         const titreRefSF = refsSFInvolved.length > 0 ? refsSFInvolved.join(', ') : (numCommandeSousFace.trim() || titreRefCaissons || 'SOUS-FACES');
@@ -3015,7 +3015,7 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
         if (!cmd || !cmd.trim()) {
           inputNumCmdRef.current?.focus();
         } else {
-          inputLRef.current?.focus();
+          inputRepereRef.current?.focus();
         }
       }
     }, 80);
@@ -3324,10 +3324,10 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
     }
 
     setTimeout(() => {
-      if (inputLRef.current) {
+      if (inputRepereRef.current) {
+        inputRepereRef.current.focus();
+      } else if (inputLRef.current) {
         inputLRef.current.focus();
-      } else {
-        inputRepereRef.current?.focus();
       }
     }, 50);
   };
@@ -3405,7 +3405,11 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
 
       if (totalLignesEnCours === 0) {
         showFlashNotification('⚠️ Veuillez saisir au moins une ligne dans la commande avant d\'enregistrer.', 'warn');
-        if (inputLRef.current) inputLRef.current.focus();
+        if (inputRepereRef.current) {
+          inputRepereRef.current.focus();
+        } else if (inputLRef.current) {
+          inputLRef.current.focus();
+        }
         return;
       }
 
@@ -3888,10 +3892,10 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      if (inputLRef.current) {
-                        inputLRef.current.focus();
-                      } else if (inputRepereRef.current) {
+                      if (inputRepereRef.current) {
                         inputRepereRef.current.focus();
+                      } else if (inputLRef.current) {
+                        inputLRef.current.focus();
                       }
                     }
                   }}
@@ -5568,6 +5572,12 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
                   type="text"
                   value={inputRepere}
                   onChange={e => setInputRepere(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      inputLRef.current?.focus();
+                    }
+                  }}
                   placeholder={`Auto: ${genererRepereCaissonSousFace({
                     donneurOrdreNom: monClient,
                     nomClientFinal: clientDeMonClient,
@@ -5643,6 +5653,12 @@ const getHauteurLameTablier = (code?: string, desig?: string, fallbackHauteur?: 
                   type="text"
                   value={inputRepere}
                   onChange={e => setInputRepere(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      inputLRef.current?.focus();
+                    }
+                  }}
                   placeholder={familleArticle === 'TABLIER' ? 'ex: SA-1, Chambre...' : familleArticle === 'MOUSTIQUAIRE' ? 'ex: H1, Cuisine...' : 'ex: 1R1, Salon...'}
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono font-bold text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />

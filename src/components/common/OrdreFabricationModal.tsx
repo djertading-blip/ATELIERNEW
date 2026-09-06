@@ -520,8 +520,8 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
       item.metrageBarresM += (nbNeuves * item.longueurBarre) / 1000;
 
       sec.groupesChutesRecup.forEach(g => {
-        const rMin = sec.article?.refus_min ?? 450;
-        const rMax = sec.article?.refus_max ?? 1200;
+        const rMin = sec.resultat?.refus_min ?? sec.article?.refus_min ?? 300;
+        const rMax = sec.resultat?.refus_max ?? sec.article?.refus_max ?? 500;
         const statutReste = g.reste >= rMax ? 'À STOCKER' : g.reste <= rMin ? 'DÉCHET' : 'À SACRIFIER';
 
         item.chutes.push({
@@ -634,25 +634,25 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
       return g.piecesInfo.map((p, pIdx) => `
         <tr style="border-bottom:1px solid #cbd5e1;">
           ${pIdx === 0 ? `
-            <td rowspan="${nbPieces}" style="width:7%;text-align:center;font-weight:900;color:#047857;font-size:15px;background:#f0fdf4;padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">${g.quantite}</td>
-            <td rowspan="${nbPieces}" style="width:13%;text-align:center;font-family:Consolas,monospace;font-weight:bold;font-size:13px;color:#334155;background:#f8fafc;padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">Barre ${Math.round(sec.barreLongueur || 6000)} mm</td>
+            <td rowspan="${nbPieces}" style="width:7%;text-align:center;font-weight:900;color:#047857;font-size:18px;background:#f0fdf4;padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">${g.quantite}</td>
+            <td rowspan="${nbPieces}" style="width:13%;text-align:center;font-family:Consolas,monospace;font-weight:900;font-size:14px;color:#334155;background:#f8fafc;padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">Barre ${Math.round(sec.barreLongueur || 6000)} mm</td>
           ` : ''}
-          <td style="width:25%;font-family:Consolas,monospace;padding:4px 6px;border-right:1px solid #cbd5e1;vertical-align:middle;">
-            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-              <strong style="font-size:13px;font-weight:900;color:#0f172a;background:#fef3c7;padding:2px 6px;border-radius:4px;border:1.5px solid #fde68a;">${p.repere}</strong>
-              ${p.cmdTag ? `<span style="font-size:11px;background:#e2e8f0;color:#1e293b;padding:1px 4px;border-radius:3px;font-weight:bold;">[Cmd ${p.cmdTag}]</span>` : ''}
+          <td style="width:25%;font-family:Consolas,monospace;padding:6px 6px;border-right:1px solid #cbd5e1;vertical-align:middle;">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <strong style="font-size:17px;font-weight:900;color:#0f172a;background:#fef3c7;padding:3px 8px;border-radius:4px;border:2px solid #fde68a;">${p.repere}</strong>
+              ${p.cmdTag ? `<span style="font-size:13px;background:#e2e8f0;color:#1e293b;padding:2px 6px;border-radius:3px;font-weight:bold;">[Cmd ${p.cmdTag}]</span>` : ''}
             </div>
           </td>
-          <td style="width:20%;font-family:Consolas,monospace;font-weight:900;padding:4px 6px;vertical-align:middle;text-align:center;border-right:1px solid #64748b;">
-            <span style="background:#f1f5f9;border:1.5px solid #64748b;padding:2px 8px;border-radius:4px;display:inline-block;font-size:16px;color:#000;">${p.longueur} mm</span>
+          <td style="width:20%;font-family:Consolas,monospace;font-weight:900;padding:6px 6px;vertical-align:middle;text-align:center;border-right:1px solid #64748b;">
+            <span style="background:#f1f5f9;border:2px solid #334155;padding:4px 12px;border-radius:4px;display:inline-block;font-size:20px;font-weight:900;color:#000;letter-spacing:0.5px;">${p.longueur} mm</span>
           </td>
           ${pIdx === 0 ? `
-            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-family:Consolas,monospace;font-size:13px;color:#1e293b;padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">${Math.round(g.chute)} mm</td>
-            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-size:12px;color:${g.statut === 'STOCK' ? '#047857' : g.statut === 'Dechet' ? '#64748b' : '#b91c1c'};padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">
+            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-family:Consolas,monospace;font-size:16px;color:#1e293b;padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">${Math.round(g.chute)} mm</td>
+            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-size:14px;color:${g.statut === 'STOCK' ? '#047857' : g.statut === 'Dechet' ? '#64748b' : '#b91c1c'};padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">
               ${g.statut === 'STOCK' ? '📦 À STOCKER' : g.statut === 'Dechet' ? '🗑️ DÉCHET' : '⚠️ SACRIFIER'}
             </td>
-            <td rowspan="${nbPieces}" style="width:13%;padding:4px 2px;vertical-align:middle;text-align:center;">
-              <div style="border-bottom:1px dashed #94a3b8;height:18px;margin:2px 4px;display:flex;align-items:flex-end;justify-content:center;font-size:11px;color:#94a3b8;font-style:italic;">cote réelle mm</div>
+            <td rowspan="${nbPieces}" style="width:13%;padding:6px 2px;vertical-align:middle;text-align:center;">
+              <div style="border-bottom:1px dashed #94a3b8;height:22px;margin:2px 4px;display:flex;align-items:flex-end;justify-content:center;font-size:12px;color:#94a3b8;font-style:italic;">cote réelle mm</div>
             </td>
           ` : ''}
         </tr>
@@ -661,30 +661,32 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
 
     const chutesHTML = sec.groupesChutesRecup.map(g => {
       const nbPieces = g.piecesInfo.length;
-      const chuteStatut = g.reste >= (sec.article?.refus_min ?? 300) ? '📦 À STOCKER' : '🗑️ DÉCHET';
-      const chuteStatutColor = g.reste >= (sec.article?.refus_min ?? 300) ? '#047857' : '#64748b';
+      const rMin = sec.resultat?.refus_min ?? sec.article?.refus_min ?? 300;
+      const rMax = sec.resultat?.refus_max ?? sec.article?.refus_max ?? 500;
+      const chuteStatut = g.reste >= rMax ? '📦 À STOCKER' : g.reste <= rMin ? '🗑️ DÉCHET' : '⚠️ SACRIFIER';
+      const chuteStatutColor = g.reste >= rMax ? '#047857' : g.reste <= rMin ? '#64748b' : '#b91c1c';
       return g.piecesInfo.map((p, pIdx) => `
         <tr style="border-bottom:1px solid #cbd5e1;">
           ${pIdx === 0 ? `
-            <td rowspan="${nbPieces}" style="width:7%;text-align:center;font-weight:900;color:#1d4ed8;font-size:15px;background:#eff6ff;padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">${g.quantite}</td>
-            <td rowspan="${nbPieces}" style="width:13%;text-align:center;font-family:Consolas,monospace;font-weight:900;font-size:13px;color:#1d4ed8;background:#eff6ff;padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">Chute ${Math.round(g.support)} mm</td>
+            <td rowspan="${nbPieces}" style="width:7%;text-align:center;font-weight:900;color:#1d4ed8;font-size:18px;background:#eff6ff;padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">${g.quantite}</td>
+            <td rowspan="${nbPieces}" style="width:13%;text-align:center;font-family:Consolas,monospace;font-weight:900;font-size:14px;color:#1d4ed8;background:#eff6ff;padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">Chute ${Math.round(g.support)} mm</td>
           ` : ''}
-          <td style="width:25%;font-family:Consolas,monospace;padding:4px 6px;border-right:1px solid #cbd5e1;vertical-align:middle;">
-            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-              <strong style="font-size:13px;font-weight:900;color:#0f172a;background:#e0f2fe;padding:2px 6px;border-radius:4px;border:1.5px solid #bae6fd;">${p.repere}</strong>
-              ${p.cmdTag ? `<span style="font-size:11px;background:#e2e8f0;color:#1e293b;padding:1px 4px;border-radius:3px;font-weight:bold;">[Cmd ${p.cmdTag}]</span>` : ''}
+          <td style="width:25%;font-family:Consolas,monospace;padding:6px 6px;border-right:1px solid #cbd5e1;vertical-align:middle;">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <strong style="font-size:17px;font-weight:900;color:#0f172a;background:#e0f2fe;padding:3px 8px;border-radius:4px;border:2px solid #bae6fd;">${p.repere}</strong>
+              ${p.cmdTag ? `<span style="font-size:13px;background:#e2e8f0;color:#1e293b;padding:2px 6px;border-radius:3px;font-weight:bold;">[Cmd ${p.cmdTag}]</span>` : ''}
             </div>
           </td>
-          <td style="width:20%;font-family:Consolas,monospace;font-weight:900;padding:4px 6px;vertical-align:middle;text-align:center;border-right:1px solid #64748b;">
-            <span style="background:#f1f5f9;border:1.5px solid #64748b;padding:2px 8px;border-radius:4px;display:inline-block;font-size:16px;color:#000;">${p.longueur} mm</span>
+          <td style="width:20%;font-family:Consolas,monospace;font-weight:900;padding:6px 6px;vertical-align:middle;text-align:center;border-right:1px solid #64748b;">
+            <span style="background:#f1f5f9;border:2px solid #334155;padding:4px 12px;border-radius:4px;display:inline-block;font-size:20px;font-weight:900;color:#000;letter-spacing:0.5px;">${p.longueur} mm</span>
           </td>
           ${pIdx === 0 ? `
-            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-family:Consolas,monospace;font-size:13px;color:#1e293b;padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">${Math.round(g.reste)} mm</td>
-            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-size:12px;color:${chuteStatutColor};padding:4px 2px;vertical-align:middle;border-right:1px solid #64748b;">
+            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-family:Consolas,monospace;font-size:16px;color:#1e293b;padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">${Math.round(g.reste)} mm</td>
+            <td rowspan="${nbPieces}" style="width:11%;text-align:center;font-weight:900;font-size:14px;color:${chuteStatutColor};padding:6px 2px;vertical-align:middle;border-right:1px solid #64748b;">
               ${chuteStatut}
             </td>
-            <td rowspan="${nbPieces}" style="width:13%;padding:4px 2px;vertical-align:middle;text-align:center;">
-              <div style="border-bottom:1px dashed #94a3b8;height:18px;margin:2px 4px;display:flex;align-items:flex-end;justify-content:center;font-size:11px;color:#94a3b8;font-style:italic;">cote réelle mm</div>
+            <td rowspan="${nbPieces}" style="width:13%;padding:6px 2px;vertical-align:middle;text-align:center;">
+              <div style="border-bottom:1px dashed #94a3b8;height:22px;margin:2px 4px;display:flex;align-items:flex-end;justify-content:center;font-size:12px;color:#94a3b8;font-style:italic;">cote réelle mm</div>
             </td>
           ` : ''}
         </tr>
@@ -713,13 +715,13 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
           <col style="width:13%;">
         </colgroup>
         <thead><tr style="background:#f8fafc;border-bottom:2px solid #64748b;">
-          <th style="width:7%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Qté</th>
-          <th style="width:13%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Origine</th>
-          <th style="width:25%;font-size:12px;font-weight:900;padding:5px 6px;border-right:1px solid #64748b;text-align:left;">Repère(s) &amp; N° Cmd</th>
-          <th style="width:20%;text-align:center;font-size:12px;font-weight:900;padding:5px 4px;border-right:1px solid #64748b;">Longueur(s) Coupe</th>
-          <th style="width:11%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Reste</th>
-          <th style="width:11%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Statut</th>
-          <th style="width:13%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;">Nouvelle Chute</th>
+          <th style="width:7%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Qté</th>
+          <th style="width:13%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Origine</th>
+          <th style="width:25%;font-size:14px;font-weight:900;padding:6px 6px;border-right:1px solid #64748b;text-align:left;">Repère(s) &amp; N° Cmd</th>
+          <th style="width:20%;text-align:center;font-size:14px;font-weight:900;padding:6px 4px;border-right:1px solid #64748b;">Longueur(s) Coupe</th>
+          <th style="width:11%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Reste</th>
+          <th style="width:11%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Statut</th>
+          <th style="width:13%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;">Nouvelle Chute</th>
         </tr></thead>
         <tbody>${barresHTML}</tbody>
       </table>` : ''}
@@ -738,13 +740,13 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
           <col style="width:13%;">
         </colgroup>
         <thead><tr style="background:#eff6ff;border-bottom:2px solid #64748b;">
-          <th style="width:7%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Qté</th>
-          <th style="width:13%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Origine</th>
-          <th style="width:25%;font-size:12px;font-weight:900;padding:5px 6px;border-right:1px solid #64748b;text-align:left;">Repère(s) &amp; N° Cmd</th>
-          <th style="width:20%;text-align:center;font-size:12px;font-weight:900;padding:5px 4px;border-right:1px solid #64748b;">Longueur(s) Coupe</th>
-          <th style="width:11%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Reste</th>
-          <th style="width:11%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;border-right:1px solid #64748b;">Statut</th>
-          <th style="width:13%;text-align:center;font-size:12px;font-weight:900;padding:5px 2px;">Nouvelle Chute</th>
+          <th style="width:7%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Qté</th>
+          <th style="width:13%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Origine</th>
+          <th style="width:25%;font-size:14px;font-weight:900;padding:6px 6px;border-right:1px solid #64748b;text-align:left;">Repère(s) &amp; N° Cmd</th>
+          <th style="width:20%;text-align:center;font-size:14px;font-weight:900;padding:6px 4px;border-right:1px solid #64748b;">Longueur(s) Coupe</th>
+          <th style="width:11%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Reste</th>
+          <th style="width:11%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;border-right:1px solid #64748b;">Statut</th>
+          <th style="width:13%;text-align:center;font-size:14px;font-weight:900;padding:6px 2px;">Nouvelle Chute</th>
         </tr></thead>
         <tbody>${chutesHTML}</tbody>
       </table>` : ''}
@@ -1340,15 +1342,15 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
             </div>
             <div className="border-2 border-slate-400 overflow-hidden rounded">
               <table className="w-full text-left text-sm border-collapse table-fixed">
-                <thead className="bg-slate-100 text-slate-900 font-black border-b-2 border-slate-400 text-xs sm:text-sm">
+                <thead className="bg-slate-100 text-slate-900 font-black border-b-2 border-slate-400 text-sm sm:text-base">
                   <tr>
-                    <th className="py-1.5 px-2 text-center w-[7%] border-r border-slate-300">Qté</th>
-                    <th className="py-1.5 px-2 text-center w-[13%] border-r border-slate-300">Origine</th>
-                    <th className="py-1.5 px-2 border-r border-slate-300 w-[25%] text-left">Repère(s) &amp; N° Cmd</th>
-                    <th className="py-1.5 px-2 border-r border-slate-300 w-[20%] text-center">Longueur(s) Coupe</th>
-                    <th className="py-1.5 px-2 text-center w-[11%] border-r border-slate-300">Reste</th>
-                    <th className="py-1.5 px-2 text-center w-[11%] border-r border-slate-300">Statut</th>
-                    <th className="py-1.5 px-2 text-center w-[13%]">Nouvelle Chute</th>
+                    <th className="py-2 px-2 text-center w-[7%] border-r border-slate-300">Qté</th>
+                    <th className="py-2 px-2 text-center w-[13%] border-r border-slate-300">Origine</th>
+                    <th className="py-2 px-2 border-r border-slate-300 w-[25%] text-left">Repère(s) &amp; N° Cmd</th>
+                    <th className="py-2 px-2 border-r border-slate-300 w-[20%] text-center">Longueur(s) Coupe</th>
+                    <th className="py-2 px-2 text-center w-[11%] border-r border-slate-300">Reste</th>
+                    <th className="py-2 px-2 text-center w-[11%] border-r border-slate-300">Statut</th>
+                    <th className="py-2 px-2 text-center w-[13%]">Nouvelle Chute</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-300 bg-white">
@@ -1360,53 +1362,53 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
                           <>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-black text-sm sm:text-base text-emerald-800 border-r border-slate-300 font-mono bg-emerald-50/50 align-middle"
+                              className="py-2.5 px-1 text-center font-black text-base sm:text-xl text-emerald-800 border-r border-slate-300 font-mono bg-emerald-50/50 align-middle"
                             >
                               {g.quantite}
                             </td>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-mono font-bold text-xs text-slate-700 border-r border-slate-300 bg-slate-50 align-middle"
+                              className="py-2.5 px-1 text-center font-mono font-black text-xs sm:text-sm text-slate-700 border-r border-slate-300 bg-slate-50 align-middle"
                             >
                               Barre {Math.round(sec.barreLongueur || 6000)} mm
                             </td>
                           </>
                         )}
-                        <td className="py-1.5 px-2 border-r border-slate-300 font-mono align-middle">
+                        <td className="py-2 px-2 border-r border-slate-300 font-mono align-middle">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-black text-xs text-slate-950 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                            <span className="font-black text-sm sm:text-base text-slate-950 bg-amber-100 px-2.5 py-1 rounded border border-amber-300">
                               {p.repere}
                             </span>
                             {p.cmdTag && (
-                              <span className="text-[10px] bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded border border-slate-300 font-bold">
+                              <span className="text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-300 font-bold">
                                 Cmd {p.cmdTag}
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-1.5 px-2 border-r border-slate-300 font-mono text-center align-middle">
-                          <span className="font-mono font-black text-xs sm:text-sm text-slate-950 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-300 inline-block shadow-xs">
-                            {p.longueur}
+                        <td className="py-2 px-2 border-r border-slate-300 font-mono text-center align-middle">
+                          <span className="font-mono font-black text-base sm:text-xl text-slate-950 bg-slate-100 px-3 py-1 rounded border-2 border-slate-400 inline-block shadow-sm">
+                            {p.longueur} mm
                           </span>
                         </td>
                         {pIdx === 0 && (
                           <>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-mono font-black text-xs sm:text-sm text-slate-900 border-r border-slate-300 align-middle"
+                              className="py-2.5 px-1 text-center font-mono font-black text-sm sm:text-base text-slate-900 border-r border-slate-300 align-middle"
                             >
                               {Math.round(g.chute)} mm
                             </td>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-bold text-xs border-r border-slate-300 align-middle"
+                              className="py-2.5 px-1 text-center font-bold text-xs sm:text-sm border-r border-slate-300 align-middle"
                             >
                               <span
-                                className={`px-1.5 py-0.5 rounded font-black text-[11px] inline-block ${
+                                className={`px-2 py-1 rounded font-black text-xs sm:text-sm inline-block ${
                                   g.statut === 'STOCK'
-                                    ? 'bg-emerald-100 text-emerald-800'
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                                     : g.statut === 'Dechet'
-                                    ? 'bg-slate-100 text-slate-600'
+                                    ? 'bg-slate-100 text-slate-600 border border-slate-300'
                                     : 'bg-rose-100 text-rose-800 border border-rose-300'
                                 }`}
                               >
@@ -1438,75 +1440,81 @@ export const OrdreFabricationModal: React.FC<OrdreFabricationModalProps> = ({
             </div>
             <div className="border-2 border-slate-400 overflow-hidden rounded">
               <table className="w-full text-left text-sm border-collapse table-fixed">
-                <thead className="bg-sky-50 text-slate-900 font-black border-b-2 border-slate-400 text-xs sm:text-sm">
+                <thead className="bg-sky-50 text-slate-900 font-black border-b-2 border-slate-400 text-sm sm:text-base">
                   <tr>
-                    <th className="py-1.5 px-2 text-center w-[7%] border-r border-slate-300">Qté</th>
-                    <th className="py-1.5 px-2 text-center w-[13%] border-r border-slate-300 bg-sky-100 text-sky-950">Origine</th>
-                    <th className="py-1.5 px-2 border-r border-slate-300 w-[25%] text-left">Repère(s) &amp; N° Cmd</th>
-                    <th className="py-1.5 px-2 border-r border-slate-300 w-[20%] text-center">Longueur(s) Coupe</th>
-                    <th className="py-1.5 px-2 text-center w-[11%] border-r border-slate-300">Reste</th>
-                    <th className="py-1.5 px-2 text-center w-[11%] border-r border-slate-300">Statut</th>
-                    <th className="py-1.5 px-2 text-center w-[13%]">Nouvelle Chute</th>
+                    <th className="py-2 px-2 text-center w-[7%] border-r border-slate-300">Qté</th>
+                    <th className="py-2 px-2 text-center w-[13%] border-r border-slate-300 bg-sky-100 text-sky-950">Origine</th>
+                    <th className="py-2 px-2 border-r border-slate-300 w-[25%] text-left">Repère(s) &amp; N° Cmd</th>
+                    <th className="py-2 px-2 border-r border-slate-300 w-[20%] text-center">Longueur(s) Coupe</th>
+                    <th className="py-2 px-2 text-center w-[11%] border-r border-slate-300">Reste</th>
+                    <th className="py-2 px-2 text-center w-[11%] border-r border-slate-300">Statut</th>
+                    <th className="py-2 px-2 text-center w-[13%]">Nouvelle Chute</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-300 bg-white">
                   {sec.groupesChutesRecup.flatMap((g, i) => {
                     const nbPieces = g.piecesInfo.length;
-                    const rMin = sec.article?.refus_min ?? 300;
-                    const isStocker = g.reste >= rMin;
+                    const rMin = sec.resultat?.refus_min ?? sec.article?.refus_min ?? 300;
+                    const rMax = sec.resultat?.refus_max ?? sec.article?.refus_max ?? 500;
+                    const isStocker = g.reste >= rMax;
+                    const isDechet = g.reste <= rMin;
                     return g.piecesInfo.map((p, pIdx) => (
                       <tr key={`${i}-${pIdx}`} className="hover:bg-sky-50/30 border-b border-slate-200">
                         {pIdx === 0 && (
                           <>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-black text-sm sm:text-base text-sky-800 border-r border-slate-300 font-mono bg-sky-50/50 align-middle"
+                              className="py-2.5 px-1 text-center font-black text-base sm:text-xl text-sky-800 border-r border-slate-300 font-mono bg-sky-50/50 align-middle"
                             >
                               {g.quantite}
                             </td>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-mono font-black text-xs sm:text-sm text-sky-950 border-r border-slate-300 bg-sky-100/50 align-middle"
+                              className="py-2.5 px-1 text-center font-mono font-black text-xs sm:text-sm text-sky-950 border-r border-slate-300 bg-sky-100/50 align-middle"
                             >
                               Chute {Math.round(g.support)} mm
                             </td>
                           </>
                         )}
-                        <td className="py-1.5 px-2 border-r border-slate-300 font-mono align-middle">
+                        <td className="py-2 px-2 border-r border-slate-300 font-mono align-middle">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-black text-xs text-sky-950 bg-sky-100 px-2 py-0.5 rounded border border-sky-300">
+                            <span className="font-black text-sm sm:text-base text-sky-950 bg-sky-100 px-2.5 py-1 rounded border border-sky-300">
                               {p.repere}
                             </span>
                             {p.cmdTag && (
-                              <span className="text-[10px] bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded border border-slate-300 font-bold">
+                              <span className="text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-300 font-bold">
                                 Cmd {p.cmdTag}
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-1.5 px-2 border-r border-slate-300 font-mono text-center align-middle">
-                          <span className="font-mono font-black text-xs sm:text-sm text-slate-950 bg-sky-50 px-2.5 py-0.5 rounded border border-sky-300 inline-block shadow-xs">
-                            {p.longueur}
+                        <td className="py-2 px-2 border-r border-slate-300 font-mono text-center align-middle">
+                          <span className="font-mono font-black text-base sm:text-xl text-slate-950 bg-sky-50 px-3 py-1 rounded border-2 border-sky-400 inline-block shadow-sm">
+                            {p.longueur} mm
                           </span>
                         </td>
                         {pIdx === 0 && (
                           <>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-mono font-black text-xs sm:text-sm text-slate-900 border-r border-slate-300 align-middle"
+                              className="py-2.5 px-1 text-center font-mono font-black text-sm sm:text-base text-slate-900 border-r border-slate-300 align-middle"
                             >
                               {Math.round(g.reste)} mm
                             </td>
                             <td
                               rowSpan={nbPieces}
-                              className="py-2 px-1 text-center font-bold text-xs border-r border-slate-300 align-middle"
+                              className="py-2.5 px-1 text-center font-bold text-xs sm:text-sm border-r border-slate-300 align-middle"
                             >
                               <span
-                                className={`px-1.5 py-0.5 rounded font-black text-[11px] inline-block ${
-                                  isStocker ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                                className={`px-2 py-1 rounded font-black text-xs sm:text-sm inline-block ${
+                                  isStocker
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                    : isDechet
+                                    ? 'bg-slate-100 text-slate-600 border border-slate-300'
+                                    : 'bg-rose-100 text-rose-800 border border-rose-300'
                                 }`}
                               >
-                                {isStocker ? '📦 À STOCKER' : '🗑️ DÉCHET'}
+                                {isStocker ? '📦 À STOCKER' : isDechet ? '🗑️ DÉCHET' : '⚠️ SACRIFIER'}
                               </span>
                             </td>
                             <td rowSpan={nbPieces} className="py-1 px-2 text-center align-middle">
